@@ -63,5 +63,5 @@ POST products/_doc
 }
 ```
 
-Quero encontrar as bebicas pelo termo de busca crássico, trará 19837 e 19839
-Quero encontrar as bebicas pelo termo de busca sucesso, trará 19840 e 19839
+Quero encontrar as bebicas pelo termo de busca crássico, trará 19837 e 19839 e agregado por categorias
+Quero encontrar as bebicas pelo termo de busca sucesso, trará 19840 e 19839 e agregado por categorias
