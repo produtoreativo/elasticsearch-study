@@ -1,0 +1,37 @@
+services:
+
+  search-api-elasticsearch:
+    image: elasticsearch:8.13.0
+    container_name: search-api-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m
+      - xpack.security.enabled=false
+    volumes:
+      - search-api-es_data:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+    healthcheck:
+        test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+        interval: 30s
+        timeout: 30s
+        retries: 5
+
+  search-api-kibana:
+    image: kibana:8.13.0
+    container_name: search-api-kibana
+    environment:
+      - ELASTICSEARCH_URL=http://search-api-elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://search-api-elasticsearch:9200
+    ports:
+      - 5602:5601
+    depends_on:
+      search-api-elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [ "CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'" ]
+
+volumes:
+  search-api-es_data:
+    driver: local
