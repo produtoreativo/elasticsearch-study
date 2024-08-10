@@ -1,0 +1,214 @@
+get products
+
+POST products/_search
+
+POST products/_delete_by_query
+{
+"query": {
+    "match_all": {}
+  }
+}
+
+POST products/_doc
+{
+  "id": 19837, 
+  "name": "Coca-cola 600 ml",
+  "Refrigerante de cola tradicional": "",
+  "price": 10.99,
+  "tags": [
+    "cola",
+    "pepsi",
+    "coca"
+  ],
+  "categories": [
+    "Refrigerantes",
+    "Cola"
+  ]
+}
+
+POST products/_doc
+{
+  "id": 19840, 
+  "name": "Coca-cola 2 Litros",
+  "description": "Coca tradicional para a familia",
+  "price": 13.99,
+  "tags": [
+    "cola",
+    "pepsi",
+    "coca"
+  ],
+  "categories": [
+    "Refrigerantes",
+    "Cola"
+  ]
+}
+
+POST products/_doc
+{
+  "id": 19839, 
+  "name": "Cerveja Estrela",
+  "description": "Cerveja para quem está sem grana",
+  "price": 5.6,
+  "tags": [
+    "cerveja",
+    "estrela",
+    "aguada"
+  ],
+  "categories": [
+    "Álcool",
+    "Cervejas"
+  ]
+}
+
+GET products/_doc/FY2gPJEByKMgcS0IiXkV
+
+POST products/_update/FY2gPJEByKMgcS0IiXkV
+{
+  "doc": {
+    "name": "Coca-cola 600ML"
+  }
+}
+
+
+POST products/_update/Go3YPJEByKMgcS0Im3lQ
+{
+  "script": "ctx._source.remove(\"Refrigerante de cola tradicional\")"
+}
+
+POST products/_update/Go3YPJEByKMgcS0Im3lQ
+{
+  "doc": {
+    "description": "Refrigerente clássico com mais de 100 anos"
+  }
+}
+
+
+POST products/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "description": {
+              "value": "refri"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "highlight": {
+    "pre_tags": ["<span class=\"highlight\">"], 
+    "post_tags": ["</span>"], 
+    "fields": {
+      "name": {}
+    }
+  }
+}
+
+DELETE products
+
+PUT products
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "edge_ngram_filter": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20
+        },
+        "portuguese_stop": {
+          "type": "stop",
+          "stopwords": "_portuguese_"
+        },
+        "portuguese_stemmer": {
+          "type": "stemmer",
+          "language": "light_portuguese"
+        },
+        "asciifolding": {
+          "type": "asciifolding"
+        },
+        "sinonimos_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "cola, pepsi, soda"
+          ]
+        }
+      },
+      "analyzer": {
+        "custom_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "sinonimos_filter",
+            "portuguese_stop",
+            "portuguese_stemmer",
+            "edge_ngram_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "custom_analyzer"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "custom_analyzer"
+      }
+    }
+  }
+}
+
+
+
+POST products/_search
+{
+  "query": {
+    "match": {
+      "description": {
+        "query": "crassico",
+        "fuzziness": 1
+      }
+    }
+  },
+  "highlight": {
+    "pre_tags": ["<span class=\"highlight\">"], 
+    "post_tags": ["</span>"], 
+    "fields": {
+      "name": {}
+    }
+  }
+}
+
+
+POST products/_search
+{
+  "size": 10, 
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "fuzzy": {
+            "description": "crassico"
+          }
+        }
+      ]
+    }
+  },
+  "highlight": {
+    "pre_tags": ["<span class=\"highlight\">"], 
+    "post_tags": ["</span>"], 
+    "fields": {
+      "name": {},
+      "description": {}
+    }
+  }
+}
